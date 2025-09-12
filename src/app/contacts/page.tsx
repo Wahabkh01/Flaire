@@ -206,7 +206,7 @@ export default function ContactsPage() {
             if (!row || row.every(cell => !cell)) continue; // Skip empty rows
 
             try {
-              const contact: Contact = {};
+              const contact: Contact = { email: "" };
               let hasEmail = false;
 
               // Map row data using headers
