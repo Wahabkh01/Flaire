@@ -14,6 +14,19 @@ interface Props {
   onChange: (html: string) => void;
 }
 
+type Variant = "default" | "accent" | "danger";
+
+interface ToolbarButtonProps {
+  onClick: () => void;
+  isActive?: boolean;
+  children: React.ReactNode;
+  tooltip?: string;
+  variant?: Variant;
+  disabled?: boolean;
+}
+
+
+
 export default function RichTextEditor({ value, onChange }: Props) {
   const [mounted, setMounted] = useState(false);
 
@@ -73,30 +86,31 @@ export default function RichTextEditor({ value, onChange }: Props) {
   };
 
   // Modern toolbar button component
-  const ToolbarButton = ({ 
-    onClick, 
-    isActive, 
-    children, 
-    tooltip, 
+  const ToolbarButton = ({
+    onClick,
+    isActive = false,
+    children,
+    tooltip,
     variant = "default",
-    disabled = false 
-  }: any) => {
-    const baseClasses = "relative overflow-hidden px-3 py-2 rounded-lg font-semibold text-sm transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-400/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100";
-    
-    const variants = {
-      default: isActive 
-        ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg" 
+    disabled = false,
+  }: ToolbarButtonProps) => {
+    const baseClasses =
+      "relative overflow-hidden px-3 py-2 rounded-lg font-semibold text-sm transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-400/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100";
+  
+    const variants: Record<Variant, string> = {
+      default: isActive
+        ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg"
         : "bg-white/10 backdrop-blur-sm text-white/90 border border-white/20 hover:bg-white/20 hover:border-white/30",
       accent: isActive
         ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg"
         : "bg-white/10 backdrop-blur-sm text-white/90 border border-white/20 hover:bg-white/20 hover:border-white/30",
       danger: isActive
         ? "bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg"
-        : disabled 
-          ? "bg-white/5 text-white/30 border border-white/10"
-          : "bg-white/10 backdrop-blur-sm text-white/90 border border-white/20 hover:bg-red-500/20 hover:border-red-400/30"
+        : disabled
+        ? "bg-white/5 text-white/30 border border-white/10"
+        : "bg-white/10 backdrop-blur-sm text-white/90 border border-white/20 hover:bg-red-500/20 hover:border-red-400/30",
     };
-
+  
     return (
       <button
         type="button"
@@ -105,11 +119,12 @@ export default function RichTextEditor({ value, onChange }: Props) {
         className={`${baseClasses} ${variants[variant]}`}
         title={tooltip}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" />
         <span className="relative z-10">{children}</span>
       </button>
     );
   };
+  
 
   return (
     <div className="relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-xl border border-white/20 shadow-xl">
