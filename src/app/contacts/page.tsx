@@ -94,7 +94,7 @@ export default function ContactsPage() {
           
           results.data.forEach((row: any, index: number) => {
             try {
-              const contact: Contact = {};
+              const contact: Contact = { email: "" };
               let hasEmail = false;
               
               // Map row data using normalized headers
