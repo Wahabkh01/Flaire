@@ -1,9 +1,6 @@
-// src/app/dashboard/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useAuth } from "../../contexts/AuthContext";
 import DashboardLayout from "@/components/DashboardLayout";
 import StatCard from "@/components/StatCard";
 import { 
@@ -61,9 +58,6 @@ interface ChartData {
 }
 
 export default function DashboardPage() {
-  const { isAuthenticated, loading: authLoading, user } = useAuth();
-  const router = useRouter();
-  
   const [stats, setStats] = useState<DashboardStats>({
     contactsCount: 0,
     campaignsCount: 0,
@@ -86,91 +80,51 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [chartLoading, setChartLoading] = useState(true);
 
-  // Auth guard - redirect if not authenticated
   useEffect(() => {
-    console.log("Dashboard: Auth loading:", authLoading, "Is authenticated:", isAuthenticated);
-    
-    if (!authLoading) {
-      if (!isAuthenticated) {
-        console.log("Dashboard: Not authenticated, redirecting to auth");
-        router.replace("/auth");
-        return;
-      } else {
-        console.log("Dashboard: User is authenticated, loading dashboard data");
+    async function fetchDashboardData() {
+      try {
+        setLoading(true);
+        setChartLoading(true);
+        
+        // ✅ Fetch dashboard stats (already includes campaigns + analytics)
+        const dashboardStats = await apiService.getDashboardStats();
+        setStats(dashboardStats);
+
+        // ✅ Build charts directly from campaigns
+        const emailPerformance = dashboardStats.campaigns?.map(c => ({
+          date: new Date(c.createdAt).toLocaleDateString(),
+          sent: c.totalSent,
+          opened: c.totalOpened,
+          clicked: c.totalClicked,
+        })) || [];
+
+        const campaignPerformance = dashboardStats.campaigns?.map(c => ({
+          name: c.name,
+          openRate: c.openRate,
+          clickRate: c.clickRate,
+        })) || [];
+
+        // (You can leave these empty until you add backend support)
+        const audienceGrowth: ChartData["audienceGrowth"] = [];
+        const deviceBreakdown: ChartData["deviceBreakdown"] = [];
+
+        setChartData({
+          emailPerformance,
+          campaignPerformance,
+          audienceGrowth,
+          deviceBreakdown,
+        });
+        
+      } catch (error) {
+        console.error("Failed to load dashboard data:", error);
+      } finally {
+        setLoading(false);
+        setChartLoading(false);
       }
     }
-  }, [isAuthenticated, authLoading, router]);
 
-  // Fetch dashboard data only when authenticated
-  useEffect(() => {
-    if (!authLoading && isAuthenticated) {
-      fetchDashboardData();
-    }
-  }, [authLoading, isAuthenticated]);
-
-  async function fetchDashboardData() {
-    try {
-      console.log("Dashboard: Starting to fetch data");
-      setLoading(true);
-      setChartLoading(true);
-      
-      // ✅ Fetch dashboard stats (already includes campaigns + analytics)
-      const dashboardStats = await apiService.getDashboardStats();
-      console.log("Dashboard: Received stats:", dashboardStats);
-      setStats(dashboardStats);
-
-      // ✅ Build charts directly from campaigns
-      const emailPerformance = dashboardStats.campaigns?.map(c => ({
-        date: new Date(c.createdAt).toLocaleDateString(),
-        sent: c.totalSent,
-        opened: c.totalOpened,
-        clicked: c.totalClicked,
-      })) || [];
-
-      const campaignPerformance = dashboardStats.campaigns?.map(c => ({
-        name: c.name,
-        openRate: c.openRate,
-        clickRate: c.clickRate,
-      })) || [];
-
-      // (You can leave these empty until you add backend support)
-      const audienceGrowth: ChartData["audienceGrowth"] = [];
-      const deviceBreakdown: ChartData["deviceBreakdown"] = [];
-
-      setChartData({
-        emailPerformance,
-        campaignPerformance,
-        audienceGrowth,
-        deviceBreakdown,
-      });
-      
-      console.log("Dashboard: Data loaded successfully");
-    } catch (error) {
-      console.error("Dashboard: Failed to load dashboard data:", error);
-      // Don't redirect on API errors, just show error state
-    } finally {
-      setLoading(false);
-      setChartLoading(false);
-    }
-  }
-
-  // Show loading screen while auth is being determined
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <div className="text-white text-lg animate-pulse">Loading dashboard...</div>
-      </div>
-    );
-  }
-
-  // Show nothing if not authenticated (will redirect)
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <div className="text-white text-lg">Redirecting to login...</div>
-      </div>
-    );
-  }
+    fetchDashboardData();
+  }, []);
 
   return (
     <DashboardLayout>
@@ -178,7 +132,7 @@ export default function DashboardPage() {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-white mb-2 bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
-            Welcome back, {user?.name || user?.email}!
+            Email Marketing Dashboard
           </h1>
           <p className="text-white/70 text-lg">Monitor your email marketing performance and grow your audience</p>
         </div>
@@ -272,6 +226,14 @@ export default function DashboardPage() {
           <ChartCard title="Campaign Performance" loading={chartLoading}>
             <CampaignPerformanceChart data={chartData.campaignPerformance} />
           </ChartCard>
+          
+          {/* <ChartCard title="Audience Growth" loading={chartLoading}>
+            <AudienceGrowthChart data={chartData.audienceGrowth} />
+          </ChartCard>
+          
+          <ChartCard title="Device Breakdown" loading={chartLoading}>
+            <DeviceBreakdownChart data={chartData.deviceBreakdown} />
+          </ChartCard> */}
         </div>
 
         {/* Quick Actions */}

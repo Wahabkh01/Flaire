@@ -4,6 +4,23 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+// Cookie helper functions
+const setCookie = (name: string, value: string, days: number = 7) => {
+  const expires = new Date(Date.now() + days * 864e5).toUTCString();
+  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; secure; samesite=strict`;
+};
+
+const getCookie = (name: string): string | null => {
+  return document.cookie.split('; ').reduce((r: string | null, v) => {
+    const parts = v.split('=');
+    return parts[0] === name ? decodeURIComponent(parts[1]) : r;
+  }, null);
+};
+
+const deleteCookie = (name: string) => {
+  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+};
+
 interface AuthContextType {
   isAuthenticated: boolean | null;
   user: any | null;
@@ -24,8 +41,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Check authentication status on mount
     const checkAuth = () => {
       try {
-        const token = localStorage.getItem('token');
-        const userData = localStorage.getItem('user');
+        const token = getCookie('token');
+        const userData = getCookie('user');
         
         if (token && userData) {
           setIsAuthenticated(true);
@@ -49,8 +66,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = (token: string, userData: any) => {
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(userData));
+    setCookie('token', token, 7); // Store token for 7 days
+    setCookie('user', JSON.stringify(userData), 7); // Store user data for 7 days
     setIsAuthenticated(true);
     setUser(userData);
     
@@ -61,8 +78,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    deleteCookie('token');
+    deleteCookie('user');
     setIsAuthenticated(false);
     setUser(null);
     router.replace('/auth');
