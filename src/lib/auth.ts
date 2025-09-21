@@ -1,9 +1,9 @@
 // lib/auth.ts - Helper functions for authentication
 import { cookies } from 'next/headers';
 
-export function getAuthToken() {
+export async function getAuthToken() {
   const cookieStore = cookies();
-  return cookieStore.get('token')?.value;
+  return (await cookieStore).get('token')?.value;
 }
 
 export async function getServerAuthHeaders() {
