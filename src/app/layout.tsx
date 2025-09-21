@@ -1,16 +1,28 @@
+
+// src/app/layout.tsx
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
-import { ReactNode } from "react";
+import { AuthProvider } from "../contexts/AuthContext";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Email Marketing Tool",
   description: "Cubic SOl Marketing",
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
-      <body className="bg-gray-50 text-gray-900">
-        {children}
+      <body className={inter.className}>
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
