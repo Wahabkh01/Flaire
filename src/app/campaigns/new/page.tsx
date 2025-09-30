@@ -17,7 +17,8 @@ export default function NewCampaignPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const router = useRouter();
   const [subject, setSubject] = useState("");
-  const [body, setBody] = useState("");
+  const [preheader, setPreheader] = useState("");   // 👈 new state
+  const [body, setBody] = useState("");  
   const [selectedList, setSelectedList] = useState("");
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [lists, setLists] = useState<string[]>([]);
@@ -89,11 +90,12 @@ export default function NewCampaignPage() {
         },
         body: JSON.stringify({
           subject,
+          preheader,   // 👈 new field
           body,
           recipients: personalizedEmails,
           scheduledAt: isDraft ? null : sendNow ? new Date().toISOString() : scheduledAt || null,
           status: newStatus,
-        }),
+        }),        
       });
 
       if (!res.ok) throw new Error("Failed to create campaign");
@@ -150,16 +152,30 @@ export default function NewCampaignPage() {
 
               <div className="space-y-6">
                 {/* Subject */}
-                <div>
-                  <label className="block text-sm font-semibold text-white mb-2">Subject Line</label>
-                  <input
-                    type="text"
-                    value={subject}
-                    onChange={(e) => setSubject(e.target.value)}
-                    className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                    placeholder="Enter email subject..."
-                  />
-                </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-white mb-2">Subject Line</label>
+                    <input
+                      type="text"
+                      value={subject}
+                      onChange={(e) => setSubject(e.target.value)}
+                      className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                      placeholder="Enter email subject..."
+                    />
+                  </div>
+
+                  {/* Preview Line */}
+                  <div>
+                    <label className="block text-sm font-semibold text-white mb-2">Preview Line (Preheader)</label>
+                    <input
+                      type="text"
+                      value={preheader}
+                      onChange={(e) => setPreheader(e.target.value)}
+                      className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                      placeholder="This text shows in inbox preview..."
+                    />
+                    <p className="text-white/60 text-sm mt-1">Appears in inbox preview, next to subject line.</p>
+                  </div>
+
 
                 {/* List Selection */}
                 <div>
@@ -327,7 +343,11 @@ export default function NewCampaignPage() {
                       <span className="font-medium text-gray-800 text-lg">
                         {subject || "No subject yet"}
                       </span>
+                      <div className="mt-1 text-gray-500 text-sm">
+                        {preheader || "No preview line yet"}
+                      </div>
                     </div>
+
                   </div>
 
                   {/* Email Body */}
@@ -364,6 +384,10 @@ export default function NewCampaignPage() {
                     <p className="text-white/80 mb-2">
                       <strong className="text-white">Subject:</strong> {subject}
                     </p>
+                    <p className="text-white/80 mb-2">
+                      <strong className="text-white">Preview Line:</strong> {preheader || "No preview line set"}
+                    </p>
+
                   </div>
                   <div
                     className="bg-white rounded-xl p-6 min-h-[200px] shadow-inner"
