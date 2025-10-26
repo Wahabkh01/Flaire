@@ -46,9 +46,10 @@ export default function RichTextEditor({ value, onChange }: Props) {
 
   useEffect(() => {
     if (editor && value !== editor.getHTML()) {
-      editor.commands.setContent(value, false);
+      editor.commands.setContent(value, { emitUpdate: false });
     }
   }, [value, editor]);
+  
 
   if (!mounted || !editor) return null;
 
@@ -72,43 +73,57 @@ export default function RichTextEditor({ value, onChange }: Props) {
   };
 
   // Modern toolbar button component
-  const ToolbarButton = ({ 
-    onClick, 
-    isActive, 
-    children, 
-    tooltip, 
-    variant = "default",
-    disabled = false 
-  }: any) => {
-    const baseClasses = "relative overflow-hidden px-3 py-2 rounded-lg font-semibold text-sm transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-400/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100";
-    
-    const variants = {
-      default: isActive 
-        ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg" 
-        : "bg-white/10 backdrop-blur-sm text-white/90 border border-white/20 hover:bg-white/20 hover:border-white/30",
-      accent: isActive
-        ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg"
-        : "bg-white/10 backdrop-blur-sm text-white/90 border border-white/20 hover:bg-white/20 hover:border-white/30",
-      danger: isActive
-        ? "bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg"
-        : disabled 
-          ? "bg-white/5 text-white/30 border border-white/10"
-          : "bg-white/10 backdrop-blur-sm text-white/90 border border-white/20 hover:bg-red-500/20 hover:border-red-400/30"
-    };
+  type Variant = "default" | "accent" | "danger";
 
-    return (
-      <button
-        type="button"
-        onClick={onClick}
-        disabled={disabled}
-        className={`${baseClasses} ${variants[variant]}`}
-        title={tooltip}
-      >
-        <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
-        <span className="relative z-10">{children}</span>
-      </button>
-    );
+interface ToolbarButtonProps {
+  onClick?: () => void;
+  isActive?: boolean;
+  children?: React.ReactNode;
+  tooltip?: string;
+  variant?: Variant;
+  disabled?: boolean;
+}
+
+const ToolbarButton: React.FC<ToolbarButtonProps> = ({
+  onClick,
+  isActive = false,
+  children,
+  tooltip,
+  variant = "default",
+  disabled = false,
+}) => {
+  const baseClasses =
+    "relative overflow-hidden px-3 py-2 rounded-lg font-semibold text-sm transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-400/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100";
+
+  const variants: Record<Variant, string> = {
+    default: isActive
+      ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg"
+      : "bg-white/10 backdrop-blur-sm text-white/90 border border-white/20 hover:bg-white/20 hover:border-white/30",
+    accent: isActive
+      ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg"
+      : "bg-white/10 backdrop-blur-sm text-white/90 border border-white/20 hover:bg-white/20 hover:border-white/30",
+    danger: isActive
+      ? "bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg"
+      : disabled
+      ? "bg-white/5 text-white/30 border border-white/10"
+      : "bg-white/10 backdrop-blur-sm text-white/90 border border-white/20 hover:bg-red-500/20 hover:border-red-400/30",
   };
+
+  // ✅ Cast variant as keyof typeof variants to fix the TypeScript index error
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={`${baseClasses} ${variants[variant as keyof typeof variants]}`}
+      title={tooltip}
+    >
+      <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+      <span className="relative z-10">{children}</span>
+    </button>
+  );
+};
+
 
   return (
     <div className="relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-xl border border-white/20 shadow-xl">

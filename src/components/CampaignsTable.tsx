@@ -226,9 +226,6 @@ export default function CampaignsTable({
         <div className="text-cyan-300 text-xs">
           Raw: {formatPercentage(campaignAnalytics.openRate)}
         </div>
-        <div className="text-green-300 text-xs">
-          Adj: {formatPercentage(campaignAnalytics.adjustedOpenRate)}
-        </div>
       </div>
     ) : (
       <div className="text-white/60 text-sm">-</div>

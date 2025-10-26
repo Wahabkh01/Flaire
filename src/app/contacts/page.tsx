@@ -8,7 +8,7 @@ import * as XLSX from 'xlsx';
 import { API_BASE_URL } from "@/config";
 
 interface Contact {
-  email: string;
+  email?: string;
   firstName?: string;
   lastName?: string;
   name?: string;
@@ -16,6 +16,7 @@ interface Contact {
   company?: string;
   [key: string]: any;
 }
+
 
 interface ParseResult {
   data: Contact[];
@@ -599,7 +600,7 @@ export default function ContactsPage() {
                         >
                           <div className="flex items-center">
                             <div className="w-10 h-10 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold mr-3">
-                              {contact.firstName?.[0] || contact.name?.[0] || contact.email[0].toUpperCase()}
+                              {contact.firstName?.[0] || contact.name?.[0] || contact.email?.[0].toUpperCase()}
                             </div>
                             <div className="flex-1">
                               <p className="text-white font-medium">
