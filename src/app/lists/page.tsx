@@ -16,7 +16,7 @@ export default function ListsPage() {
 
   const fetchLists = async () => {
     try {
-      const res = await fetch("http://localhost:3000/contacts/lists", {
+      const res = await fetch("https://affinix.co/backend/contacts/lists", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -68,7 +68,7 @@ export default function ListsPage() {
   const handleDelete = async (name: string) => {
     if (!confirm(`Delete list "${name}" and all its contacts?`)) return;
     try {
-      const res = await fetch(`http://localhost:3000/contacts/lists/${name}`, {
+      const res = await fetch(`https://affinix.co/backend/contacts/lists/${name}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });

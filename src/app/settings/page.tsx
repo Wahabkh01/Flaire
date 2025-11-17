@@ -66,11 +66,13 @@ export default function SettingsPage() {
     try {
       const data = await apiService.getEmailSettings();
   
-      if (!data || !data.configured) {
-        setHasSettings(false);
+      if (!data) {
         showNotification('info', '⚙️ Please configure your SMTP settings to start sending emails');
-        return;
+        setHasSettings(false);
+      } else {
+        setHasSettings(!!data.configured);
       }
+      
   
       // Merge fetched data into form state without overwriting focus
       setForm(prev => ({

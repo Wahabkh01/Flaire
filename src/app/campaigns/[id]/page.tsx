@@ -84,7 +84,9 @@ export default function CampaignDetailPage() {
         setSubject(campaignData.subject);
         setBody(campaignData.body);
         setRecipients(campaignData.recipients.map((r: Recipient) => r.email).join(", "));
-        setScheduledAt(campaignData.scheduledAt ? campaignData.scheduledAt.slice(0, 16) : "");
+        setScheduledAt(new Date(campaignData.scheduledAt).toISOString().slice(0, 16));
+
+        
 
         // Fetch analytics if campaign was sent
         if (['sent', 'sending', 'completed'].includes(campaignData.status)) {
@@ -186,7 +188,7 @@ export default function CampaignDetailPage() {
           subject,
           body,
           recipients: finalRecipients,
-          scheduledAt: scheduledAt || null,
+          scheduledAt: scheduledAt ? new Date(scheduledAt).toISOString() : null,
           status: newStatus,
         }),
       });
